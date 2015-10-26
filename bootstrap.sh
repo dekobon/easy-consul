@@ -32,8 +32,6 @@ echo "Generating shared secret"
 # This should be equivelent to "consul keygen"
 CONSUL_SHARED_SECRET=$(dd if=/dev/urandom bs=16 count=1 2> /dev/null | base64)
 
-echo "Your shared secret is: ${CONSUL_SHARED_SECRET}"
-
 NETWORKS="$(sdc-listnetworks)"
 PUBLIC_NETWORK_ID=$(echo "$NETWORKS" | json -c "this.public == true" | json -a "id" | head -n 1)
 PUBLIC_NETWORK_NAME=$(echo $NETWORKS | json -c "this.id == '$PUBLIC_NETWORK_ID'" | json -a "name" | head -n 1)
@@ -98,8 +96,7 @@ echo "Instance 02 id: ${INSTANCE_02_ID}"
 echo "Instance 03 id: ${INSTANCE_03_ID}"
 
 echo "Creating firewall rules"
-echo "If you want to open communication with consul and the outside world,"
-echo "you will need to enable the relevant firewall rules. To list, run: sdc-listfirewallrules"
+echo "If you want to open communication with Consul and the outside world, you will need to enable the relevant firewall rules. To list, run: sdc-listfirewallrules"
 
 RULES="$(sdc-listfirewallrules | json -a 'rule')"
 
@@ -208,8 +205,6 @@ echo;
 INSTANCE_01_PUBLIC_IP="$(sdc-getmachine ${INSTANCE_01_ID} | json 'ips[0]')"
 INSTANCE_01_PRIVATE_IP="$(sdc-getmachine ${INSTANCE_01_ID} | json 'ips[1]')"
 
-echo "Instance 01 IP: ${INSTANCE_01_PUBLIC_IP}"
-
 # Copy interpolated bootstrap file
 cat << EOF > /tmp/bootstrap-config.json
 {
@@ -252,8 +247,6 @@ echo;
 INSTANCE_02_PUBLIC_IP="$(sdc-getmachine ${INSTANCE_02_ID} | json 'ips[0]')"
 INSTANCE_02_PRIVATE_IP="$(sdc-getmachine ${INSTANCE_02_ID} | json 'ips[1]')"
 
-echo "Instance 02 IP: ${INSTANCE_02_PUBLIC_IP}"
-
 echo "Waiting for third node to come online"
 while [ "$(sdc-getmachine ${INSTANCE_01_ID} | json state)" == "provisioning" ]; do
     echo -n '.'
@@ -263,8 +256,6 @@ echo;
 
 INSTANCE_03_PUBLIC_IP="$(sdc-getmachine ${INSTANCE_03_ID} | json 'ips[0]')"
 INSTANCE_03_PRIVATE_IP="$(sdc-getmachine ${INSTANCE_03_ID} | json 'ips[1]')"
-
-echo "Instance 03 IP: ${INSTANCE_03_PUBLIC_IP}"
 
 # We build out the server config for all of the instances
 
@@ -348,12 +339,20 @@ rm -f /tmp/bootstrap-config.json \
       /tmp/instance_02.json \
       /tmp/instance_03.json
 
-echo "Consul private network addresses: [$INSTANCE_01_PRIVATE_IP, $INSTANCE_02_PRIVATE_IP, $INSTANCE_03_PRIVATE_IP]"
 
-CONSUL_PATH="$(which consul)"
+PUBLIC_UI_FW_RULE_ID=$(sdc-listfirewallrules | json -c "this.rule == 'FROM any TO tag server_type = consul-server ALLOW tcp PORT 8500'" | json -a 'id')
 
-if [ -z ${CONSUL_PATH} ]; then
-    exit 0;
-fi
-
-echo "Consul was found on the path. Running additional tests."
+echo "Consul onstallation completed"
+echo
+echo "Summary of settings:"
+echo "===================="
+echo
+echo "Consul private network addresses: $INSTANCE_01_PRIVATE_IP, $INSTANCE_02_PRIVATE_IP, $INSTANCE_03_PRIVATE_IP"
+echo "Consul public network addresses:  $INSTANCE_01_PUBLIC_IP, $INSTANCE_02_PUBLIC_IP, $INSTANCE_03_PUBLIC_IP"
+echo "Consul shared secret:             $CONSUL_SHARED_SECRET"
+echo
+echo "After you have enabled firewall access for the UI, as so:"
+echo
+echo "SDC_URL=$SDC_URL sdc-enablefirewallrule $PUBLIC_UI_FW_RULE_ID"
+echo
+echo "You can visit the Consul UI: http://$INSTANCE_01_PUBLIC_IP:8500/"
