@@ -1,5 +1,11 @@
 # Easy Three Node Consul Cluster
 
+## Demo
+
+ Watch how easy it is to boot a three node Consul cluster on Joyent!
+ 
+ [![asciicast](https://asciinema.org/a/28784.png)](https://asciinema.org/a/28784)
+
 ## Getting started
 
   1. Check out the git repository.
