@@ -350,6 +350,7 @@ echo
 echo "Consul private network addresses: $INSTANCE_01_PRIVATE_IP, $INSTANCE_02_PRIVATE_IP, $INSTANCE_03_PRIVATE_IP"
 echo "Consul public network addresses:  $INSTANCE_01_PUBLIC_IP, $INSTANCE_02_PUBLIC_IP, $INSTANCE_03_PUBLIC_IP"
 echo "Consul shared secret:             $CONSUL_SHARED_SECRET"
+echo "Consul private clients available: $INSTANCE_01_PRIVATE_IP:8500 $INSTANCE_02_PRIVATE_IP:8500 $INSTANCE_03_PRIVATE_IP:8500"
 echo
 echo "After you have enabled firewall access for the UI, as so:"
 echo
