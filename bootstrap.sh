@@ -342,7 +342,7 @@ rm -f /tmp/bootstrap-config.json \
 
 PUBLIC_UI_FW_RULE_ID=$(sdc-listfirewallrules | json -c "this.rule == 'FROM any TO tag server_type = consul-server ALLOW tcp PORT 8500'" | json -a 'id')
 
-echo "Consul onstallation completed"
+echo "Consul installation completed"
 echo
 echo "Summary of settings:"
 echo "===================="
